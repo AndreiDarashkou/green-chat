@@ -8,6 +8,10 @@ group 'org.green-chat'
 version '1.0-SNAPSHOT'
 sourceCompatibility = '1.8'
 
+bootJar {
+    archiveFileName = "green-chat.jar"
+}
+
 repositories {
     mavenCentral()
 }
