@@ -9,6 +9,6 @@ EXPOSE 6565
 
 RUN mkdir /app
 
-COPY --from=build /home/gradle/src/build/libs/*.jar /app/green-chat.jar
+COPY --from=build /home/gradle/src/build/libs/*.jar /app/
 
 ENTRYPOINT ["java","-jar","/app/green-chat.jar"]
