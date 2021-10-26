@@ -17,8 +17,12 @@ import java.util.concurrent.ConcurrentSkipListSet;
 public class ChatService {
 
     private final static Set<User> ONLINE = new ConcurrentSkipListSet<>(Comparator.comparing(User::getUsername));
+
     private final Sinks.Many<List<User>> users = Sinks.many().unicast().onBackpressureBuffer();
     private final Sinks.Many<Message> messages = Sinks.many().unicast().onBackpressureBuffer();
+
+    private final Flux<List<User>> usersStream = users.asFlux().share().cache(1)
+            .doOnSubscribe(sub -> System.out.println("subscribed on users"));
 
     private final Flux<Message> messageFlux = messages.asFlux()
             .doOnNext(msg -> System.out.println("before share: " + msg))
@@ -33,7 +37,7 @@ public class ChatService {
     public Flux<Message> messageStream(Mono<User> request) {
         return request.doOnNext(ONLINE::add)
                 .doOnNext(user -> users.tryEmitNext(new ArrayList<>(ONLINE)))
-                .thenMany(messageFlux);//Flux.from(messageFlux)
+                .thenMany(messageFlux);
     }
 
     public void sendMessage(Mono<Message> message) {
@@ -42,10 +46,6 @@ public class ChatService {
     }
 
     public Flux<List<User>> usersStream() {
-        return users.asFlux();
-    }
-
-    private void logout() {
-
+        return usersStream;
     }
 }
