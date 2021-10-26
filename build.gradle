@@ -6,7 +6,7 @@ plugins {
 
 group 'org.green-chat'
 version '1.0-SNAPSHOT'
-sourceCompatibility = '1.8'
+sourceCompatibility = JavaVersion.VERSION_17
 
 bootJar {
     archiveFileName = "green-chat.jar"
@@ -23,12 +23,12 @@ configurations {
 }
 
 dependencies {
-    implementation 'org.springframework.boot:spring-boot-starter-rsocket'
+    implementation 'org.springframework.boot:spring-boot-starter-rsocket:2.5.5'
 
-    compileOnly 'org.projectlombok:lombok:1.18.20'
-    annotationProcessor 'org.projectlombok:lombok:1.18.20'
+    compileOnly 'org.projectlombok:lombok:1.18.22'
+    annotationProcessor 'org.projectlombok:lombok:1.18.22'
     testImplementation 'org.springframework.boot:spring-boot-starter-test:2.5.5'
-    testImplementation 'io.projectreactor:reactor-test:3.4.10'
+    testImplementation 'io.projectreactor:reactor-test:3.4.11'
 }
 
 test {
