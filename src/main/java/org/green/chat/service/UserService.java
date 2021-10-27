@@ -1,6 +1,8 @@
 package org.green.chat.service;
 
 import org.green.chat.model.User;
+import org.springframework.boot.context.event.ApplicationStartedEvent;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -22,6 +24,11 @@ public class UserService {
             .doOnError(err -> System.out.println("usersStream exception " + err.getMessage()))
             .doOnCancel(() -> System.out.println("usersStream cancelled"))
             .doOnTerminate(() -> System.out.println("usersStream someone terminated"));
+
+    @EventListener(ApplicationStartedEvent.class)
+    public void subscribeUsers() {
+        usersStream.subscribe();
+    }
 
     public Mono<User> login(Mono<User> user) {
         return user.doOnNext(u -> MOCK_DB.putIfAbsent(u.getId(), u))
