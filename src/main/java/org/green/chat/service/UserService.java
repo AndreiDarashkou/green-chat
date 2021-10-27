@@ -1,5 +1,6 @@
 package org.green.chat.service;
 
+import lombok.extern.slf4j.Slf4j;
 import org.green.chat.model.User;
 import org.springframework.boot.context.event.ApplicationStartedEvent;
 import org.springframework.context.event.EventListener;
@@ -11,6 +12,7 @@ import reactor.core.publisher.Sinks;
 import java.util.*;
 import java.util.concurrent.ConcurrentSkipListSet;
 
+@Slf4j
 @Service
 public class UserService {
 
@@ -34,7 +36,8 @@ public class UserService {
         return user.doOnNext(u -> MOCK_DB.putIfAbsent(u.getId(), u))
                 .doOnNext(ONLINE::add)
                 .doOnNext(u -> users.tryEmitNext(new ArrayList<>(ONLINE)))
-                .map(u -> MOCK_DB.get(u.getId()));
+                .map(u -> MOCK_DB.get(u.getId()))
+                .doOnNext(v -> log.info("user: " + v + " logged in"));
     }
 
     public Flux<List<User>> online() {
