@@ -10,16 +10,15 @@ import reactor.core.publisher.Mono;
 import reactor.core.publisher.Sinks;
 
 import java.util.*;
-import java.util.concurrent.ConcurrentSkipListSet;
 
 @Slf4j
 @Service
 public class UserService {
 
-    private final static Set<User> ONLINE = new ConcurrentSkipListSet<>(Comparator.comparing(User::getUsername));
+    private final static Set<User> ONLINE = new HashSet<>();
     private static final Map<String, User> MOCK_DB = new HashMap<>();
 
-    private final Sinks.Many<List<User>> users = Sinks.many().unicast().onBackpressureBuffer();
+    private final Sinks.Many<List<User>> users = Sinks.many().multicast().onBackpressureBuffer();
 
     private final Flux<List<User>> usersStream = users.asFlux().share().cache(1)
             .doOnSubscribe(sub -> System.out.println("usersStream subscribed: " + sub))
@@ -35,7 +34,10 @@ public class UserService {
     public Mono<User> login(Mono<User> user) {
         return user.doOnNext(u -> MOCK_DB.putIfAbsent(u.getId(), u))
                 .doOnNext(ONLINE::add)
-                .doOnNext(u -> users.tryEmitNext(new ArrayList<>(ONLINE)))
+                .doOnNext(u -> users.emitNext(new ArrayList<>(ONLINE), (s, err) -> {
+                    log.error("cannot emit user");
+                    return false;
+                }))
                 .map(u -> MOCK_DB.get(u.getId()))
                 .doOnNext(v -> log.info("user: " + v + " logged in"));
     }
