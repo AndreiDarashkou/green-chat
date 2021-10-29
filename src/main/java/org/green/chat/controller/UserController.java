@@ -9,7 +9,7 @@ import org.springframework.stereotype.Controller;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.util.List;
+import java.util.Set;
 
 @Slf4j
 @Controller
@@ -25,8 +25,8 @@ public class UserController {
     }
 
     @MessageMapping("users.stream")
-    public Flux<List<User>> usersStream() {
+    public Flux<Set<User>> usersStream(User user) {
         log.info("called users.stream");
-        return userService.online();
+        return userService.online(user);
     }
 }
