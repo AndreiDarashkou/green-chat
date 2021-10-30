@@ -11,6 +11,8 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 public class User {
+    public static final User EMPTY = User.of("Чебуашка");
+
     private String id;
     private String username;
     private String color;

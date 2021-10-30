@@ -1,6 +1,5 @@
 package org.green.chat.repository;
 
-import org.green.chat.model.LoginRequest;
 import org.green.chat.model.User;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
@@ -9,6 +8,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Component
 public class UserRepository {
@@ -20,9 +20,15 @@ public class UserRepository {
         return Mono.just(user);
     }
 
+    public Set<User> findByUserIdIn(Set<String> userIds) {
+        return userIds.stream()
+                .map(MOCK_DB::get)
+                .collect(Collectors.toSet());
+    }
+
     public Mono<User> findByUsername(String username) {
         return MOCK_DB.values().stream()
-                .filter(user-> user.getUsername().equals(username))
+                .filter(user -> user.getUsername().equals(username))
                 .findFirst()
                 .map(Mono::just)
                 .orElse(Mono.empty());

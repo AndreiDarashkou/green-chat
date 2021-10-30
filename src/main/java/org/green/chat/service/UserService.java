@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.green.chat.model.LoginRequest;
 import org.green.chat.model.User;
+import org.green.chat.model.UserRequest;
 import org.green.chat.repository.UserRepository;
 import org.springframework.boot.context.event.ApplicationStartedEvent;
 import org.springframework.context.event.EventListener;
@@ -12,19 +13,20 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.publisher.Sinks;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.Set;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class UserService {
 
+    private static final String CURRENT_USER_ID = "current_user_id";
+    private final static Set<String> ONLINE = new HashSet<>();
+
     private final UserRepository userRepository;
 
-    private final static Set<User> ONLINE = new HashSet<>();
-
     private final Sinks.Many<Set<User>> users = Sinks.many().multicast().onBackpressureBuffer();
-
     private final Flux<Set<User>> usersStream = users.asFlux().share().cache(1);
 
     @EventListener(ApplicationStartedEvent.class)
@@ -35,26 +37,32 @@ public class UserService {
     public Mono<User> login(LoginRequest user) {
         return userRepository.findByUsername(user.getUsername())
                 .switchIfEmpty(userRepository.save(User.of(user.getUsername())))
-                .doOnNext(u -> users.tryEmitNext(ONLINE))
+                .doOnNext(u -> ONLINE.add(u.getId()))
+                .doOnNext(u -> notifyOnlineUsers())
                 .doOnNext(u -> log.info("user logged in: " + u));
     }
 
-    public Flux<Set<User>> online(User user) {
+    public Flux<Set<User>> online(UserRequest request) {
         return usersStream.transformDeferredContextual((userFlux, contextView) -> {
-                    ContextHolder<User> cached = contextView.get("current_user");
+                    ContextHolder<String> subscribedUserId = contextView.get(CURRENT_USER_ID);
                     return userFlux
                             .doOnCancel(() -> {
-                                User cachedUser = cached.getData();
-                                ONLINE.remove(cachedUser);
-                                users.tryEmitNext(ONLINE);
-                                System.out.println("users.stream unsubscribed: " + user);
+                                String cachedUserId = subscribedUserId.getData();
+                                ONLINE.remove(cachedUserId);
+                                notifyOnlineUsers();
+                                System.out.println("users.stream unsubscribed: " + request);
                             })
                             .doOnSubscribe(sub -> {
-                                System.out.println("users.stream subscribed: " + user);
-                                cached.setData(user);
+                                System.out.println("users.stream subscribed: " + request);
+                                subscribedUserId.setData(request.getUserId());
                             });
                 })
-                .contextWrite(context -> context.put("current_user", new ContextHolder<User>(null)));
+                .contextWrite(context -> context.put(CURRENT_USER_ID, new ContextHolder<User>(null)));
+    }
+
+    private void notifyOnlineUsers() {
+        Set<User> onlineUsers = userRepository.findByUserIdIn(ONLINE);
+        users.tryEmitNext(onlineUsers);
     }
 
 }
