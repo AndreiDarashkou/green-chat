@@ -1,7 +1,10 @@
 package org.green.chat.service;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.green.chat.model.LoginRequest;
 import org.green.chat.model.User;
+import org.green.chat.repository.UserRepository;
 import org.springframework.boot.context.event.ApplicationStartedEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
@@ -13,10 +16,12 @@ import java.util.*;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class UserService {
 
+    private final UserRepository userRepository;
+
     private final static Set<User> ONLINE = new HashSet<>();
-    private static final Map<String, User> MOCK_DB = new HashMap<>();
 
     private final Sinks.Many<Set<User>> users = Sinks.many().multicast().onBackpressureBuffer();
 
@@ -27,11 +32,10 @@ public class UserService {
         usersStream.subscribe();
     }
 
-    public Mono<User> login(Mono<User> user) {
-        return user.doOnNext(u -> MOCK_DB.putIfAbsent(u.getId(), u))
-                .doOnNext(ONLINE::add)
+    public Mono<User> login(LoginRequest user) {
+        return userRepository.findByUsername(user.getUsername())
+                .switchIfEmpty(userRepository.save(User.of(user.getUsername())))
                 .doOnNext(u -> users.tryEmitNext(ONLINE))
-                .map(u -> MOCK_DB.get(u.getId()))
                 .doOnNext(u -> log.info("user logged in: " + u));
     }
 

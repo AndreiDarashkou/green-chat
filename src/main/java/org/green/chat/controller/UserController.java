@@ -2,6 +2,7 @@ package org.green.chat.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.green.chat.model.LoginRequest;
 import org.green.chat.model.User;
 import org.green.chat.service.UserService;
 import org.springframework.messaging.handler.annotation.MessageMapping;
@@ -19,9 +20,9 @@ public class UserController {
     private final UserService userService;
 
     @MessageMapping("users.login")
-    public Mono<User> usersLogin(Mono<User> user) {
+    public Mono<User> usersLogin(LoginRequest login) {
         log.info("called users.login");
-        return userService.login(user);
+        return userService.login(login);
     }
 
     @MessageMapping("users.stream")
