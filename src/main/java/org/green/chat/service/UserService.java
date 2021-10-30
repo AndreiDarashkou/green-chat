@@ -37,8 +37,6 @@ public class UserService {
     public Mono<User> login(LoginRequest user) {
         return userRepository.findByUsername(user.getUsername())
                 .switchIfEmpty(userRepository.save(User.of(user.getUsername())))
-                .doOnNext(u -> ONLINE.add(u.getId()))
-                .doOnNext(u -> notifyOnlineUsers())
                 .doOnNext(u -> log.info("user logged in: " + u));
     }
 
