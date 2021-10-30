@@ -1,6 +1,6 @@
 package org.green.chat.service;
 
-import org.green.chat.model.Message;
+import lombok.extern.slf4j.Slf4j;
 import org.green.chat.model.MessageRequest;
 import org.green.chat.model.MessageResponse;
 import org.springframework.stereotype.Service;
@@ -10,25 +10,14 @@ import reactor.core.publisher.Sinks;
 
 import java.time.Instant;
 
+@Slf4j
 @Service
 public class MessageService {
 
-    private final Sinks.Many<Message> messages = Sinks.many().unicast().onBackpressureBuffer();
-    private final Flux<Message> messageStream = messages.asFlux().share().cache(10);
+    private final Sinks.Many<MessageResponse> messages = Sinks.many().unicast().onBackpressureBuffer();
+    private final Flux<MessageResponse> messageStream = messages.asFlux().share().cache(10);
 
-    private final Sinks.Many<MessageResponse> messages2 = Sinks.many().unicast().onBackpressureBuffer();
-    private final Flux<MessageResponse> messageStream2 = messages2.asFlux().share().cache(10);
-
-    public Flux<Message> messageStream() {
-        return messageStream;
-    }
-
-    public void sendMessage(Mono<Message> message) {
-        message.doOnNext(System.out::println)
-                .subscribe(messages::tryEmitNext);
-    }
-
-    public void sendMessageNew(Mono<MessageRequest> message) {
+    public void sendMessage(Mono<MessageRequest> message) {
         message.doOnNext(System.out::println)
                 .subscribe(msg -> {
                     MessageResponse response = new MessageResponse();
@@ -37,12 +26,12 @@ public class MessageService {
                     response.setToUserId(msg.getToUserId());
                     response.setTimestamp(Instant.now());
 
-                    messages2.tryEmitNext(response);
+                    messages.tryEmitNext(response);
                 });
     }
 
-    public Flux<MessageResponse> messageStreamNew(String userId) {
-        return messageStream2
+    public Flux<MessageResponse> messageStream(String userId) {
+        return messageStream
                 .filter(msg -> msg.getToUserId() == null || msg.getToUserId().equals(userId));
     }
 }

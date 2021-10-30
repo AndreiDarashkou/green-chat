@@ -47,14 +47,16 @@ public class UserService {
                     ContextHolder<String> subscribedUserId = contextView.get(CURRENT_USER_ID);
                     return userFlux
                             .doOnCancel(() -> {
+                                log.info("users.stream unsubscribed: {}", request);
                                 String cachedUserId = subscribedUserId.getData();
                                 ONLINE.remove(cachedUserId);
                                 notifyOnlineUsers();
-                                System.out.println("users.stream unsubscribed: " + request);
                             })
                             .doOnSubscribe(sub -> {
-                                System.out.println("users.stream subscribed: " + request);
+                                log.info("users.stream subscribed: {}", request);
                                 subscribedUserId.setData(request.getUserId());
+                                ONLINE.add(request.getUserId());
+                                notifyOnlineUsers();
                             });
                 })
                 .contextWrite(context -> context.put(CURRENT_USER_ID, new ContextHolder<User>(null)));
