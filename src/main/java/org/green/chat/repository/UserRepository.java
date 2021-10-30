@@ -4,10 +4,7 @@ import org.green.chat.model.User;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Component
@@ -34,7 +31,9 @@ public class UserRepository {
                 .orElse(Mono.empty());
     }
 
-    public void getOnline() {
-
+    public Mono<User> findByUserId(String userId) {
+        return Optional.ofNullable(MOCK_DB.get(userId))
+                .map(Mono::just)
+                .orElseGet(Mono::empty);
     }
 }

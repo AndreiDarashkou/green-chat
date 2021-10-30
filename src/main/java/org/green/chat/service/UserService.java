@@ -60,6 +60,10 @@ public class UserService {
                 .contextWrite(context -> context.put(CURRENT_USER_ID, new ContextHolder<User>(null)));
     }
 
+    public Mono<User> getShortInfo(UserRequest request) {
+        return userRepository.findByUserId(request.getUserId());
+    }
+
     private void notifyOnlineUsers() {
         Set<User> onlineUsers = userRepository.findByUserIdIn(ONLINE);
         users.tryEmitNext(onlineUsers);

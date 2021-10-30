@@ -22,13 +22,19 @@ public class UserController {
 
     @MessageMapping("users.login")
     public Mono<User> usersLogin(LoginRequest request) {
-        log.info("called users.login");
+        log.info("called users.login: {}", request);
         return userService.login(request);
     }
 
     @MessageMapping("users.stream")
     public Flux<Set<User>> usersStream(UserRequest request) {
-        log.info("called users.stream");
+        log.info("called users.stream: {}", request);
         return userService.online(request);
+    }
+
+    @MessageMapping("users.short.info")
+    public Mono<User> shortInfo(UserRequest request) {
+        log.info("called users.short.info : {}", request);
+        return userService.getShortInfo(request);
     }
 }
