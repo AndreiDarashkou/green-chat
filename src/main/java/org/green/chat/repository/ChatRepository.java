@@ -9,4 +9,6 @@ import reactor.core.publisher.Flux;
 public interface ChatRepository extends ReactiveCrudRepository<Chat, Long> {
 
     Flux<Chat> findAllByUsersContains(long userId);
+
+    Flux<Chat> findAllByUsersContainsAndGroupIsFalse(long userId);
 }

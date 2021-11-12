@@ -1,6 +1,7 @@
 package org.green.chat.repository;
 
 import org.green.chat.repository.entity.UserEntity;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.repository.reactive.ReactiveCrudRepository;
 import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Flux;
@@ -14,4 +15,6 @@ public interface UserRepository extends ReactiveCrudRepository<UserEntity, Long>
     Flux<UserEntity> findByIdIn(Collection<Long> id);
 
     Mono<UserEntity> findByUsername(String username);
+
+    Flux<UserEntity> findByUsernameContainingIgnoreCase(String search, Pageable page);
 }
