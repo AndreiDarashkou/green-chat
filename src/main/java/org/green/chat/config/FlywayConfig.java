@@ -27,13 +27,13 @@ public class FlywayConfig {
     }
 
     @Bean
-    public DataSource dataSource() {
+    public DataSource dataSource(FlywayProperties properties) {
         PGSimpleDataSource dataSource = new PGSimpleDataSource();
         dataSource.setTcpKeepAlive(true);
-        dataSource.setUrl("jdbc:postgresql://localhost:5432/green_chat");
-        dataSource.setPassword("");
-        dataSource.setUser("postgres");
-        dataSource.setDatabaseName("postgres");
+        dataSource.setUrl(properties.getUrl());
+        dataSource.setUser(properties.getUsername());
+        dataSource.setPassword(properties.getPassword());
+        dataSource.setDatabaseName(properties.getDatabase());
 
         return dataSource;
     }
