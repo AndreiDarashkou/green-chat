@@ -1,0 +1,16 @@
+version: '3'
+
+services:
+  postgres:
+    image: postgres:14.0
+    command: ['-c', 'max_prepared_transactions=100']
+    environment:
+      - POSTGRES_HOST_AUTH_METHOD=trust
+    ports:
+      - '5432:5432'
+
+#  redis:
+#    image: redis
+#    container_name: redis
+#    ports:
+#      - '6379:6379'
