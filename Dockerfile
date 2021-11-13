@@ -3,12 +3,7 @@ COPY --chown=gradle:gradle . /home/gradle/src
 WORKDIR /home/gradle/src
 RUN gradle bootJar --no-daemon
 
-FROM postgres:14.1-alpine
-
-CMD java -version
-
-RUN apk update && apk upgrade
-RUN apk add openjdk14
+FROM openjdk:17.0.1-jdk
 
 EXPOSE 6565
 
