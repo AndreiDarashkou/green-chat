@@ -4,7 +4,10 @@ spring:
       port: 6565
       transport: websocket
   r2dbc:
-    url: r2dbc:postgresql://localhost:5432/green_chat
+    properties:
+      schema: green_chat
+      sslmode: require
+    url: r2dbc:postgresql://localhost:5432/postgres
     username: postgres
 
 flyway:
