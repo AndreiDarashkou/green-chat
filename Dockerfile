@@ -8,7 +8,9 @@ FROM postgres:14.1-alpine
 CMD ["java", "-version"]
 
 RUN apk update && apk upgrade
-RUN apk add openjdk11
+RUN apk add openjdk17=17.0.1_p12-r0
+
+CMD ["java", "-version"]
 
 EXPOSE 6565
 
