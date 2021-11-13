@@ -5,12 +5,10 @@ RUN gradle bootJar --no-daemon
 
 FROM postgres:14.1-alpine
 
-CMD ["java", "-version"]
+CMD java -version
 
 RUN apk update && apk upgrade
-RUN apk add openjdk17=17.0.1_p12-r0
-
-CMD ["java", "-version"]
+RUN apk add openjdk14
 
 EXPOSE 6565
 
