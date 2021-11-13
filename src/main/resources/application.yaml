@@ -1,18 +1,43 @@
+#spring:
+#  rsocket:
+#    server:
+#      port: 6565
+#      transport: websocket
+#  r2dbc:
+#    url: r2dbc:postgresql://localhost:5432/postgres
+#    username: postgres
+#    properties:
+#      schema: green_chat
+#      ssl: true
+#      sslMode: require
+#
+#flyway:
+#  url: jdbc:postgresql://localhost:5432/green_chat
+#  username: postgres
+#  password:
+#  database: postgres
+
+
 spring:
   rsocket:
     server:
       port: 6565
       transport: websocket
   r2dbc:
-    url: r2dbc:postgresql://localhost:5432/postgres
-    username: postgres
+    url: r2dbc:postgresql://private-db-postgresql-fra1-58552-do-user-10115209-0.b.db.ondigitalocean.com:25060/green_chat
+    username: doadmin
+    password: rCaRORyLN71ibFqM
     properties:
-      schema: green_chat
       ssl: true
       sslMode: require
+      schema: green_chat
+    pool:
+      initial-size: 1
+      max-size: 10
+      max-idle-time: 30m
 
 flyway:
-  url: jdbc:postgresql://localhost:5432/green_chat
-  username: postgres
-  password:
-  database: postgres
+  url: jdbc:postgresql://private-db-postgresql-fra1-58552-do-user-10115209-0.b.db.ondigitalocean.com:25060/green_chat?sslmode=require
+  database: green_chat
+  username: doadmin
+  password: rCaRORyLN71ibFqM
