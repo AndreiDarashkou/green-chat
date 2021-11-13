@@ -24,7 +24,7 @@ spring:
       port: 6565
       transport: websocket
   r2dbc:
-    url: r2dbc:postgresql://private-db-postgresql-fra1-58552-do-user-10115209-0.b.db.ondigitalocean.com:25060/green_chat
+    url: r2dbc:postgresql://db-postgresql-fra1-58552-do-user-10115209-0.b.db.ondigitalocean.com:25060/green_chat
     username: doadmin
     password: rCaRORyLN71ibFqM
     properties:
@@ -37,7 +37,7 @@ spring:
       max-idle-time: 30m
 
 flyway:
-  url: jdbc:postgresql://private-db-postgresql-fra1-58552-do-user-10115209-0.b.db.ondigitalocean.com:25060/green_chat?sslmode=require
-  database: green_chat
+  url: jdbc:postgresql://db-postgresql-fra1-58552-do-user-10115209-0.b.db.ondigitalocean.com:25060/green_chat
   username: doadmin
   password: rCaRORyLN71ibFqM
+  database: green_chat
