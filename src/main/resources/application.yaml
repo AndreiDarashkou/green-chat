@@ -10,12 +10,12 @@
 #      schema: green_chat
 #      ssl: true
 #      sslMode: require
-#
-#flyway:
-#  url: jdbc:postgresql://localhost:5432/green_chat
-#  username: postgres
-#  password:
-#  database: postgres
+
+flyway:
+  url: jdbc:postgresql://localhost:5432/green_chat
+  username: postgres
+  password:
+  database: postgres
 
 
 spring:
@@ -36,8 +36,8 @@ spring:
       max-size: 10
       max-idle-time: 30m
 
-flyway:
-  url: jdbc:postgresql://db-postgresql-fra1-58552-do-user-10115209-0.b.db.ondigitalocean.com:25060/green_chat
-  username: doadmin
-  password: rCaRORyLN71ibFqM
-  database: green_chat
+#flyway:
+#  url: jdbc:postgresql://db-postgresql-fra1-58552-do-user-10115209-0.b.db.ondigitalocean.com:25060/green_chat
+#  username: doadmin
+#  password: rCaRORyLN71ibFqM
+#  database: green_chat
