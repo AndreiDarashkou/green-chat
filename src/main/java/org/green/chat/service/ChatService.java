@@ -10,9 +10,12 @@ import org.springframework.stereotype.Service;
 import reactor.cache.CacheFlux;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.core.publisher.Signal;
+import reactor.core.publisher.SignalType;
 
 import java.util.List;
-import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Slf4j
 @Service
@@ -33,8 +36,9 @@ public class ChatService {
     }
 
     public Flux<Chat> getAll(long userId) {
-        return CacheFlux.lookup(userChatCache.asMap(), userId, Chat.class)
-                .onCacheMissResume(() -> chatRepository.findAllByUsersContains(userId));
+        return CacheFlux.lookup(this::lookupChats, userId)
+                .onCacheMissResume(() -> chatRepository.findAllByUsersContains(userId))
+                .andWriteWith((k, signals) -> Mono.fromRunnable(() -> cacheChats(k, signals)));
     }
 
     public List<Long> getAllIds(long userId) {
@@ -46,5 +50,24 @@ public class ChatService {
                 .map(Chat::getUsers)
                 .flatMap(Flux::fromIterable)
                 .collectList();
+    }
+
+    private Mono<List<Signal<Chat>>> lookupChats(long userId) {
+        List<Chat> cached = userChatCache.asMap().get(userId);
+
+        return cached == null ? Mono.empty() :
+                Mono.just(cached)
+                        .flatMapMany(Flux::fromIterable)
+                        .map(Signal::next)
+                        .collectList();
+    }
+
+    private void cacheChats(Long userId, List<Signal<Chat>> signals) {
+        List<Chat> chats = signals.stream()
+                .filter(sig -> sig.getType() == SignalType.ON_NEXT)
+                .map(Signal::get)
+                .toList();
+
+        userChatCache.put(userId, chats);
     }
 }
