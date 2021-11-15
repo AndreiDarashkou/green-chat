@@ -15,15 +15,18 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 public class ChatController {
 
+    public static final String CHAT_CREATE = "chat.create";
+    public static final String CHAT_LIST = "chat.list";
+
     private final ChatService chatService;
 
-    @MessageMapping("chat.create")
+    @MessageMapping(CHAT_CREATE)
     public Mono<Chat> createChat(Chat chat) {
         log.info("called chat.create");
         return chatService.create(chat);
     }
 
-    @MessageMapping("chat.list")
+    @MessageMapping(CHAT_LIST)
     public Flux<Chat> getChatList(UserRequest request) {
         log.info("called chat.list");
         return chatService.getAll(request.getUserId());

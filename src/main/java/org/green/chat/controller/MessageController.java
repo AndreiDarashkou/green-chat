@@ -14,15 +14,18 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 public class MessageController {
 
+    public static final String MESSAGE_STREAM = "message.stream";
+    public static final String MESSAGE_SEND = "message.send";
+
     private final MessageService messageService;
 
-    @MessageMapping("message.stream")
+    @MessageMapping(MESSAGE_STREAM)
     public Flux<Message> messageStream(Long chatId) {
         log.info("called messages.stream");
         return messageService.messageStream(chatId);
     }
 
-    @MessageMapping("message.send")
+    @MessageMapping(MESSAGE_SEND)
     public void sendMessage(Mono<Message> message) {
         log.info("called message.send");
         messageService.sendMessage(message);

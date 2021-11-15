@@ -26,6 +26,7 @@ public class MessageService {
     }
 
     public Flux<Message> messageStream(long chatId) {
-        return messageStream.filter(msg -> msg.getChatId() == chatId);
+        return messageRepository.findAllByChatId(chatId).concatWith(
+                messageStream.filter(msg -> msg.getChatId() == chatId));
     }
 }

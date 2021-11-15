@@ -34,9 +34,8 @@ public class FlywayConfig {
         dataSource.setUser(properties.getUsername());
         dataSource.setPassword(properties.getPassword());
         dataSource.setDatabaseName(properties.getDatabase());
-        dataSource.setSsl(true);
-        dataSource.setSslMode("require");
-        dataSource.setSslmode("require");
+        dataSource.setSsl(properties.isSsl());
+        dataSource.setSslMode(properties.getSslMode());
 
         return dataSource;
     }

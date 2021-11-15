@@ -1,22 +1,33 @@
+datasource:
+  url: postgresql://localhost
+  port: 5432
+  username: postgres
+  password: postgres
+  ssl: false
+  sslMode: disable
+
 spring:
   rsocket:
     server:
       port: 6565
       transport: websocket
   r2dbc:
-    url: r2dbc:postgresql://localhost:5432/postgres
-    username: postgres
+    url: r2dbc:${datasource.url}:${datasource.port}/postgres
+    username: ${datasource.username}
+    password: ${datasource.password}
     properties:
-      ssl: true
-      sslMode: require
       schema: green_chat
+      ssl: ${datasource.ssl}
+      sslMode: ${datasource.sslMode}
     pool:
       initial-size: 1
       max-size: 10
       max-idle-time: 30m
 
 flyway:
-  url: jdbc:postgresql://localhost:5432/green_chat
-  username: postgres
-  password:
+  url: jdbc:${datasource.url}:${datasource.port}/green_chat
+  username: ${datasource.username}
+  password: ${datasource.password}
   database: postgres
+  ssl: ${datasource.ssl}
+  sslMode: ${datasource.sslMode}

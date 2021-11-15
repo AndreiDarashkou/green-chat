@@ -12,4 +12,6 @@ public class FlywayProperties {
     private String username;
     private String password;
     private String database;
+    private boolean ssl;
+    private String sslMode;
 }

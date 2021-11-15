@@ -19,27 +19,32 @@ import java.util.List;
 @RequiredArgsConstructor
 public class UserController {
 
+    public static final String USER_LOGIN = "user.login";
+    public static final String USER_STREAM = "user.stream";
+    public static final String USER_SHORT_INFO = "user.short.info";
+    public static final String USER_SEARCH = "user.search";
+
     private final UserService userService;
 
-    @MessageMapping("user.login")
+    @MessageMapping(USER_LOGIN)
     public Mono<UserEntity> usersLogin(LoginRequest request) {
         log.info("called user.login: {}", request);
         return userService.login(request);
     }
 
-    @MessageMapping("user.stream")
+    @MessageMapping(USER_STREAM)
     public Flux<List<UserEntity>> usersStream(UserRequest request) {
         log.info("called user.stream: {}", request);
         return userService.online(request);
     }
 
-    @MessageMapping("user.short.info")
+    @MessageMapping(USER_SHORT_INFO)
     public Mono<UserEntity> shortInfo(UserRequest request) {
         log.info("called user.short.info : {}", request);
         return userService.getShortInfo(request);
     }
 
-    @MessageMapping("user.search")
+    @MessageMapping(USER_SEARCH)
     public Mono<List<UserEntity>> searchUsers(SearchRequest request) {
         log.info("called user.search: {}", request);
         return userService.searchByUsername(request);
