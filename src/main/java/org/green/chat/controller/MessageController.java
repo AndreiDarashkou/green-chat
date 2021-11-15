@@ -2,6 +2,8 @@ package org.green.chat.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.green.chat.model.ChatRequest;
+import org.green.chat.model.UserRequest;
 import org.green.chat.repository.entity.Message;
 import org.green.chat.service.MessageService;
 import org.springframework.messaging.handler.annotation.MessageMapping;
@@ -16,13 +18,20 @@ public class MessageController {
 
     public static final String MESSAGE_STREAM = "message.stream";
     public static final String MESSAGE_SEND = "message.send";
+    public static final String MESSAGE_HISTORY = "message.history";
 
     private final MessageService messageService;
 
     @MessageMapping(MESSAGE_STREAM)
-    public Flux<Message> messageStream(Long chatId) {
+    public Flux<Message> messageStream(UserRequest request) {
         log.info("called messages.stream");
-        return messageService.messageStream(chatId);
+        return messageService.messageStream(request.getUserId());
+    }
+
+    @MessageMapping(MESSAGE_HISTORY)
+    public Flux<Message> messageHistory(ChatRequest request) {
+        log.info("called messages.history");
+        return messageService.messageHistory(request.getChatId());
     }
 
     @MessageMapping(MESSAGE_SEND)
