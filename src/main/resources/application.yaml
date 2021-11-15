@@ -12,7 +12,7 @@ spring:
       port: 6565
       transport: websocket
   r2dbc:
-    url: r2dbc:${datasource.url}:${datasource.port}/postgres
+    url: r2dbc:${datasource.url}:${datasource.port}/green_chat
     username: ${datasource.username}
     password: ${datasource.password}
     properties:
@@ -28,6 +28,6 @@ flyway:
   url: jdbc:${datasource.url}:${datasource.port}/green_chat
   username: ${datasource.username}
   password: ${datasource.password}
-  database: postgres
+  database: green_chat
   ssl: ${datasource.ssl}
   sslMode: ${datasource.sslMode}

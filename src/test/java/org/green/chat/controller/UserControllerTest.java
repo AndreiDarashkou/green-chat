@@ -33,10 +33,6 @@ public class UserControllerTest {
 
     @Test
     void shouldCreateAndReturnUser() {
-        Mono<UserEntity> result = requester.route(USER_LOGIN)
-                .data(new LoginRequest("TestUser"))
-                .retrieveMono(UserEntity.class);
-
         StepVerifier.create(requester.route(USER_LOGIN)
                         .data(new LoginRequest("TestUser"))
                         .retrieveMono(UserEntity.class))
