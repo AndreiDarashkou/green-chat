@@ -21,7 +21,7 @@ public class ChatController {
     private final ChatService chatService;
 
     @MessageMapping(CHAT_CREATE)
-    public Mono<Chat> createChat(Chat chat) {
+    public Mono<Chat> createChat(Mono<Chat> chat) {
         log.info("called chat.create");
         return chatService.create(chat);
     }

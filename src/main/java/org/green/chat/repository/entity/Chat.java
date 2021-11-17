@@ -21,5 +21,6 @@ public class Chat {
     private String name;
     @Column("is_group")
     private boolean group;
+    private String color;
     private Instant created;
 }

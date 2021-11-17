@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.green.chat.repository.ChatRepository;
 import org.green.chat.repository.entity.Chat;
+import org.green.chat.util.ColorUtils;
 import org.springframework.stereotype.Service;
 import reactor.cache.CacheFlux;
 import reactor.core.publisher.Flux;
@@ -27,8 +28,9 @@ public class ChatService {
 
     private final ChatRepository chatRepository;
 
-    public Mono<Chat> create(Chat chat) {
-        return chatRepository.save(chat)
+    public Mono<Chat> create(Mono<Chat> chat) {
+        return chat.doOnNext(ch -> ch.setColor(ColorUtils.randomColor()))
+                .flatMap(chatRepository::save)
                 .doOnNext(saved -> saved.getUsers().forEach(userId -> {
                     userChatCache.invalidate(userId);
                     userChatIdsCache.invalidate(userId);
