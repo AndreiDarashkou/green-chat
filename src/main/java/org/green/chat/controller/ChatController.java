@@ -2,6 +2,7 @@ package org.green.chat.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.green.chat.model.CreateChatRequest;
 import org.green.chat.model.UserRequest;
 import org.green.chat.repository.entity.Chat;
 import org.green.chat.service.ChatService;
@@ -21,7 +22,7 @@ public class ChatController {
     private final ChatService chatService;
 
     @MessageMapping(CHAT_CREATE)
-    public Mono<Chat> createChat(Mono<Chat> chat) {
+    public Mono<Chat> createChat(CreateChatRequest chat) {
         log.info("called chat.create");
         return chatService.create(chat);
     }

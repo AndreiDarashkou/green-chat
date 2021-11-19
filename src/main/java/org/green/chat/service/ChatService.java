@@ -4,8 +4,11 @@ import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.green.chat.model.CreateChatRequest;
 import org.green.chat.repository.ChatRepository;
+import org.green.chat.repository.UserRepository;
 import org.green.chat.repository.entity.Chat;
+import org.green.chat.repository.entity.UserEntity;
 import org.green.chat.util.ColorUtils;
 import org.springframework.stereotype.Service;
 import reactor.cache.CacheFlux;
@@ -14,9 +17,8 @@ import reactor.core.publisher.Mono;
 import reactor.core.publisher.Signal;
 import reactor.core.publisher.SignalType;
 
+import java.time.Instant;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Slf4j
 @Service
@@ -27,14 +29,25 @@ public class ChatService {
     private final Cache<Long, List<Long>> userChatIdsCache = Caffeine.newBuilder().maximumSize(100).build();
 
     private final ChatRepository chatRepository;
+    private final UserRepository userRepository;
 
-    public Mono<Chat> create(Mono<Chat> chat) {
-        return chat.doOnNext(ch -> ch.setColor(ColorUtils.randomColor()))
-                .flatMap(chatRepository::save)
+    public Mono<Chat> create(CreateChatRequest request) {
+        Chat chat = Chat.builder()
+                .users(request.getUsers())
+                .name(request.getName())
+                .color(request.isGroup() ? ColorUtils.randomColor() : null)
+                .group(request.isGroup())
+                .created(Instant.now())
+                .build();
+
+        return chatRepository.save(chat)
                 .doOnNext(saved -> saved.getUsers().forEach(userId -> {
                     userChatCache.invalidate(userId);
                     userChatIdsCache.invalidate(userId);
-                }));
+                }))
+                .flatMap(saved -> getName(saved, request.getUserId())
+                        .doOnNext(saved::setName)
+                        .flatMap(name -> Mono.just(saved)));
     }
 
     public Flux<Chat> getAll(long userId) {
@@ -71,5 +84,15 @@ public class ChatService {
                 .toList();
 
         userChatCache.put(userId, chats);
+    }
+
+    private Mono<String> getName(Chat chat, long userId) {
+        if (chat.isGroup()) {
+            return Mono.just(chat.getName());
+        }
+        long friendId = chat.getUsers().stream().filter(id -> id != userId).findFirst()
+                .orElseThrow(RuntimeException::new);
+
+        return userRepository.findById(friendId).map(UserEntity::getUsername);
     }
 }
