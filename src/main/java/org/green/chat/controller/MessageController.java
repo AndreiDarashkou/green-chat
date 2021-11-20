@@ -29,9 +29,9 @@ public class MessageController {
     }
 
     @MessageMapping(MESSAGE_HISTORY)
-    public Flux<Message> messageHistory(ChatRequest request) {
+    public Mono<Void> messageHistory(ChatRequest request) {
         log.info("called messages.history");
-        return messageService.messageHistory(request.getChatId());
+        return messageService.send(request);
     }
 
     @MessageMapping(MESSAGE_SEND)

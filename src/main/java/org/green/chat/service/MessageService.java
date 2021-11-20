@@ -1,21 +1,16 @@
 package org.green.chat.service;
 
-import com.github.benmanes.caffeine.cache.Cache;
-import com.github.benmanes.caffeine.cache.Caffeine;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.green.chat.repository.ChatRepository;
+import org.green.chat.model.ChatRequest;
 import org.green.chat.repository.MessageRepository;
-import org.green.chat.repository.entity.Chat;
 import org.green.chat.repository.entity.Message;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.publisher.Sinks;
 
-import java.time.Duration;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
+import java.time.Instant;
 
 @Slf4j
 @Service
@@ -39,7 +34,10 @@ public class MessageService {
         return messageStream.filter(msg -> chatService.getAllIds(userId).contains(msg.getChatId()));
     }
 
-    public Flux<Message> messageHistory(Long chatId) {
-        return messageRepository.findAllByChatId(chatId);
+    public Mono<Void> send(ChatRequest request) {
+        Instant lastMsgTime = request.getFrom() == null ? Instant.now() : request.getFrom();
+        return messageRepository.findByFilter(request.getChatId(), lastMsgTime, request.getLimit())
+                .doOnNext(messages::tryEmitNext)
+                .then();
     }
 }

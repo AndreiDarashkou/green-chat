@@ -1,15 +1,29 @@
 package org.green.chat.config;
 
 import io.rsocket.core.Resume;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.rsocket.server.RSocketServerCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import reactor.core.publisher.Hooks;
 import reactor.util.retry.Retry;
 
 import java.time.Duration;
+import java.util.concurrent.CancellationException;
 
+@Slf4j
 @Configuration
 public class RSocketConfig {
+
+    public RSocketConfig() {
+        Hooks.onErrorDropped(e -> {
+            if (e instanceof CancellationException || e.getCause() instanceof CancellationException) {
+                log.trace("Operator called default onErrorDropped", e);
+            } else {
+                log.error("Operator called default onErrorDropped", e);
+            }
+        });
+    }
 
     @Bean
     public RSocketServerCustomizer rSocketServerCustomizer() {

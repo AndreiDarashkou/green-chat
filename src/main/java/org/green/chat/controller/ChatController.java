@@ -2,6 +2,7 @@ package org.green.chat.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.green.chat.model.ChatRequest;
 import org.green.chat.model.CreateChatRequest;
 import org.green.chat.model.UserRequest;
 import org.green.chat.repository.entity.Chat;
@@ -18,6 +19,7 @@ public class ChatController {
 
     public static final String CHAT_CREATE = "chat.create";
     public static final String CHAT_LIST = "chat.list";
+    public static final String CHAT_INFO = "chat.info";
 
     private final ChatService chatService;
 
@@ -31,5 +33,11 @@ public class ChatController {
     public Flux<Chat> getChatList(UserRequest request) {
         log.info("called chat.list");
         return chatService.getAll(request.getUserId());
+    }
+
+    @MessageMapping(CHAT_INFO)
+    public Mono<Chat> getChatInfo(ChatRequest request) {
+        log.info("called chat.info");
+        return chatService.get(request.getChatId());
     }
 }

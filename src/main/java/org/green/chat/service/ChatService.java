@@ -41,13 +41,13 @@ public class ChatService {
                 .build();
 
         return chatRepository.save(chat)
+                .flatMap(saved -> getName(saved, request.getUserId())
+                        .doOnNext(saved::setName)
+                        .flatMap(name -> Mono.just(saved)))
                 .doOnNext(saved -> saved.getUsers().forEach(userId -> {
                     userChatCache.invalidate(userId);
                     userChatIdsCache.invalidate(userId);
-                }))
-                .flatMap(saved -> getName(saved, request.getUserId())
-                        .doOnNext(saved::setName)
-                        .flatMap(name -> Mono.just(saved)));
+                }));
     }
 
     public Flux<Chat> getAll(long userId) {
@@ -65,6 +65,10 @@ public class ChatService {
                 .map(Chat::getUsers)
                 .flatMap(Flux::fromIterable)
                 .collectList();
+    }
+
+    public Mono<Chat> get(long chatId) {
+        return chatRepository.findById(chatId);
     }
 
     private Mono<List<Signal<Chat>>> lookupChats(long userId) {
