@@ -8,6 +8,7 @@ import org.green.chat.model.CreateChatRequest;
 import org.green.chat.repository.ChatRepository;
 import org.green.chat.repository.UserRepository;
 import org.green.chat.repository.entity.Chat;
+import org.green.chat.repository.entity.Message;
 import org.green.chat.repository.entity.UserEntity;
 import org.green.chat.util.ColorUtils;
 import org.springframework.stereotype.Service;
@@ -56,7 +57,7 @@ public class ChatService {
                 .andWriteWith((k, signals) -> Mono.fromRunnable(() -> cacheChats(k, signals)));
     }
 
-    public List<Long> getAllIds(long userId) {
+    private List<Long> getAllIds(long userId) {
         return userChatIdsCache.get(userId, (id) -> chatRepository.findAllIdsByUsersContains(id).toStream().toList());
     }
 
@@ -69,6 +70,11 @@ public class ChatService {
 
     public Mono<Chat> get(long chatId) {
         return chatRepository.findById(chatId);
+    }
+
+    public Mono<Boolean> checkRecipient(Message msg, long userId) {
+        return chatRepository.findAllIdsByUsersContains(userId)
+                .any(chId -> chId == msg.getChatId());
     }
 
     private Mono<List<Signal<Chat>>> lookupChats(long userId) {

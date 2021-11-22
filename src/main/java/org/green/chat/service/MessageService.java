@@ -30,8 +30,7 @@ public class MessageService {
     }
 
     public Flux<Message> messageStream(long userId) {
-        //todo filter each message. potentially slow performance
-        return messageStream;//.filter(msg -> chatService.getAllIds(userId).contains(msg.getChatId()));
+        return messageStream.filterWhen(msg -> chatService.checkRecipient(msg, userId));
     }
 
     public Mono<Void> send(ChatRequest request) {
