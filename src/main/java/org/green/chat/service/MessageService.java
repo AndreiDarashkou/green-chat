@@ -20,7 +20,7 @@ public class MessageService {
     private final MessageRepository messageRepository;
     private final ChatService chatService;
 
-    private final Sinks.Many<Message> messages = Sinks.many().unicast().onBackpressureBuffer();
+    private final Sinks.Many<Message> messages = Sinks.many().multicast().onBackpressureBuffer();
     private final Flux<Message> messageStream = messages.asFlux().share();
 
     public void sendMessage(Mono<Message> message) {
