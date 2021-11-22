@@ -24,14 +24,14 @@ public class MessageController {
 
     @MessageMapping(MESSAGE_STREAM)
     public Flux<Message> messageStream(UserRequest request) {
-        log.info("called messages.stream");
+        log.info("called message.stream");
         return messageService.messageStream(request.getUserId());
     }
 
     @MessageMapping(MESSAGE_HISTORY)
     public Mono<Void> messageHistory(ChatRequest request) {
-        log.info("called messages.history");
-        return messageService.send(request);
+        log.info("called message.history: " + request);
+        return messageService.sendHistory(request);
     }
 
     @MessageMapping(MESSAGE_SEND)

@@ -10,7 +10,6 @@ import org.green.chat.repository.UserRepository;
 import org.green.chat.repository.entity.Chat;
 import org.green.chat.repository.entity.Message;
 import org.green.chat.repository.entity.UserEntity;
-import org.green.chat.util.ColorUtils;
 import org.springframework.stereotype.Service;
 import reactor.cache.CacheFlux;
 import reactor.core.publisher.Flux;
@@ -18,7 +17,6 @@ import reactor.core.publisher.Mono;
 import reactor.core.publisher.Signal;
 import reactor.core.publisher.SignalType;
 
-import java.time.Instant;
 import java.util.List;
 
 @Slf4j
@@ -33,15 +31,7 @@ public class ChatService {
     private final UserRepository userRepository;
 
     public Mono<Chat> create(CreateChatRequest request) {
-        Chat chat = Chat.builder()
-                .users(request.getUsers())
-                .name(request.getName())
-                .color(request.isGroup() ? ColorUtils.randomColor() : null)
-                .group(request.isGroup())
-                .created(Instant.now())
-                .build();
-
-        return chatRepository.save(chat)
+        return chatRepository.save(Chat.of(request))
                 .flatMap(saved -> getName(saved, request.getUserId())
                         .doOnNext(saved::setName)
                         .flatMap(name -> Mono.just(saved)))
@@ -57,10 +47,6 @@ public class ChatService {
                 .andWriteWith((k, signals) -> Mono.fromRunnable(() -> cacheChats(k, signals)));
     }
 
-    private List<Long> getAllIds(long userId) {
-        return userChatIdsCache.get(userId, (id) -> chatRepository.findAllIdsByUsersContains(id).toStream().toList());
-    }
-
     public Mono<List<Long>> getAllRelativeIds(Long userId) {
         return chatRepository.findAllByUsersContainsAndGroupIsFalse(userId)
                 .map(Chat::getUsers)
@@ -73,8 +59,13 @@ public class ChatService {
     }
 
     public Mono<Boolean> checkRecipient(Message msg, long userId) {
-        return chatRepository.findAllIdsByUsersContains(userId)
-                .any(chId -> chId == msg.getChatId());
+        return getAllIds(userId).any(chId -> chId == msg.getChatId());
+    }
+
+    private Flux<Long> getAllIds(long userId) {
+        return CacheFlux.lookup(this::lookupChatIds, userId)
+                .onCacheMissResume(() -> chatRepository.findAllIdsByUsersContains(userId))
+                .andWriteWith((k, signals) -> Mono.fromRunnable(() -> cacheChatIds(k, signals)));
     }
 
     private Mono<List<Signal<Chat>>> lookupChats(long userId) {
@@ -104,5 +95,24 @@ public class ChatService {
                 .orElseThrow(RuntimeException::new);
 
         return userRepository.findById(friendId).map(UserEntity::getUsername);
+    }
+
+    private Mono<List<Signal<Long>>> lookupChatIds(long userId) {
+        List<Long> cached = userChatIdsCache.asMap().get(userId);
+
+        return cached == null ? Mono.empty() :
+                Mono.just(cached)
+                        .flatMapMany(Flux::fromIterable)
+                        .map(Signal::next)
+                        .collectList();
+    }
+
+    private void cacheChatIds(Long userId, List<Signal<Long>> signals) {
+        List<Long> chats = signals.stream()
+                .filter(sig -> sig.getType() == SignalType.ON_NEXT)
+                .map(Signal::get)
+                .toList();
+
+        userChatIdsCache.put(userId, chats);
     }
 }

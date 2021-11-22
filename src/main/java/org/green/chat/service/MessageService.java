@@ -10,8 +10,6 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.publisher.Sinks;
 
-import java.time.Instant;
-
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -33,10 +31,10 @@ public class MessageService {
         return messageStream.filterWhen(msg -> chatService.checkRecipient(msg, userId));
     }
 
-    public Mono<Void> send(ChatRequest request) {
-        Instant lastMsgTime = request.getFrom() == null ? Instant.now() : request.getFrom();
-        return messageRepository.findByFilter(request.getChatId(), lastMsgTime, request.getLimit())
+    public Mono<Void> sendHistory(ChatRequest request) {
+        return messageRepository.findByFilter(request.getChatId(), request.getLimit())
                 .doOnNext(messages::tryEmitNext)
+                .doOnError(e -> log.error(e.getMessage()))
                 .then();
     }
 }

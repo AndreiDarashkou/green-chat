@@ -18,5 +18,5 @@ public class Message {
     private long chatId;
     private long userId;
     private String message;
-    private Instant timestamp;
+    private Instant created;
 }
