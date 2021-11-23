@@ -11,6 +11,6 @@ import java.time.Instant;
 @NoArgsConstructor
 public class ChatRequest {
     private Long chatId;
-    private Instant from;
-    private int limit;
+    private Instant from = Instant.now();
+    private int limit = 10;
 }

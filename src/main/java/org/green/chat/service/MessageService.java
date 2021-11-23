@@ -10,6 +10,8 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.publisher.Sinks;
 
+import java.time.Instant;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -33,8 +35,12 @@ public class MessageService {
                 .filterWhen(msg -> chatService.checkRecipient(msg, userId));
     }
 
+    public Flux<Message> getHistory(ChatRequest request) {
+        return messageRepository.findByFilter(request.getChatId(), request.getFrom(), request.getLimit());
+    }
+
     public Mono<Void> sendHistory(ChatRequest request) {
-        return messageRepository.findByFilter(request.getChatId(), request.getLimit())
+        return messageRepository.findByFilter(request.getChatId(), Instant.now(), request.getLimit())
                 .doOnNext(msg -> System.out.println("send message: " + msg))
                 .doOnNext(msg -> messages.emitNext(msg, (m, signal) -> {
                     log.warn(signal.toString());
