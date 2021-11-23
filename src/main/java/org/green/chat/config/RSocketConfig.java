@@ -15,15 +15,15 @@ import java.util.concurrent.CancellationException;
 @Configuration
 public class RSocketConfig {
 
-    public RSocketConfig() {
-        Hooks.onErrorDropped(e -> {
-            if (e instanceof CancellationException || e.getCause() instanceof CancellationException) {
-                log.trace("Operator called default onErrorDropped", e);
-            } else {
-                log.error("Operator called default onErrorDropped", e);
-            }
-        });
-    }
+//    public RSocketConfig() {
+//        Hooks.onErrorDropped(e -> {
+//            if (e instanceof CancellationException || e.getCause() instanceof CancellationException) {
+//                log.trace("Operator called default onErrorDropped", e);
+//            } else {
+//                log.error("Operator called default onErrorDropped", e);
+//            }
+//        });
+//    }
 
     @Bean
     public RSocketServerCustomizer rSocketServerCustomizer() {

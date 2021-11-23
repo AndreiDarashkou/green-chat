@@ -34,6 +34,7 @@ public class MessageService {
     public Mono<Void> sendHistory(ChatRequest request) {
         return messageRepository.findByFilter(request.getChatId(), request.getLimit())
                 .doOnNext(messages::tryEmitNext)
+                .doOnError(msg -> System.out.println("send message: " + msg))
                 .doOnError(e -> log.error(e.getMessage()))
                 .then();
     }
