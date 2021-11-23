@@ -26,7 +26,10 @@ public class MessageService {
     public void sendMessage(Mono<Message> message) {
         message.doOnNext(System.out::println)
                 .flatMap(messageRepository::save)
-                .subscribe(messages::tryEmitNext);
+                .subscribe(msg -> messages.emitNext(msg, (m, s) -> {
+                    log.warn("error emitting message: " + s);
+                    return false;
+                }));
     }
 
     public Flux<Message> messageStream(long userId) {
