@@ -32,6 +32,8 @@ public class MessageService {
     public Flux<Message> messageStream(long userId) {
         return messageStream
                 .doOnNext(msg -> log.info("message stream: " + msg))
+                .doOnError(err -> log.error("message stream error:", err))
+                .doOnComplete(() -> log.info("message stream completed"))
                 .filterWhen(msg -> chatService.checkRecipient(msg, userId));
     }
 
