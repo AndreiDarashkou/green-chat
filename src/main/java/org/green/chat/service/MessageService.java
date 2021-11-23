@@ -28,13 +28,18 @@ public class MessageService {
     }
 
     public Flux<Message> messageStream(long userId) {
-        return messageStream.filterWhen(msg -> chatService.checkRecipient(msg, userId));
+        return messageStream
+                .doOnNext(msg -> log.info("message stream: " + msg))
+                .filterWhen(msg -> chatService.checkRecipient(msg, userId));
     }
 
     public Mono<Void> sendHistory(ChatRequest request) {
         return messageRepository.findByFilter(request.getChatId(), request.getLimit())
-                .doOnNext(messages::tryEmitNext)
-                .doOnError(msg -> System.out.println("send message: " + msg))
+                .doOnNext(msg -> System.out.println("send message: " + msg))
+                .doOnNext(msg -> messages.emitNext(msg, (m, signal) -> {
+                    log.warn(signal.toString());
+                    return false;
+                }))
                 .doOnError(e -> log.error(e.getMessage()))
                 .then();
     }
