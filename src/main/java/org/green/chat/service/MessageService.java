@@ -5,6 +5,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.green.chat.model.ChatRequest;
 import org.green.chat.repository.MessageRepository;
 import org.green.chat.repository.entity.Message;
+import org.springframework.boot.context.event.ApplicationStartedEvent;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -23,8 +25,14 @@ public class MessageService {
     private final Sinks.Many<Message> messages = Sinks.many().multicast().onBackpressureBuffer();
     private final Flux<Message> messageStream = messages.asFlux().share();
 
+    @EventListener(ApplicationStartedEvent.class)
+    public void subscribeUsers() {
+        messageStream.subscribe(System.out::println);
+    }
+
     public void sendMessage(Mono<Message> message) {
         message.doOnNext(System.out::println)
+                .doOnNext(msg -> msg.setCreated(Instant.now()))
                 .flatMap(messageRepository::save)
                 .subscribe(msg -> messages.emitNext(msg, (m, s) -> {
                     log.warn("error emitting message: " + s);
