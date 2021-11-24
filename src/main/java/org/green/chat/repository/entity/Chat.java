@@ -1,7 +1,6 @@
 package org.green.chat.repository.entity;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.green.chat.model.CreateChatRequest;
@@ -15,7 +14,6 @@ import java.util.List;
 
 @Data
 @Table("chats")
-@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class Chat {
@@ -29,12 +27,7 @@ public class Chat {
     private Instant created;
 
     public static Chat of(CreateChatRequest request) {
-        return Chat.builder()
-                .users(request.getUsers())
-                .name(request.getName())
-                .color(request.isGroup() ? ColorUtils.randomColor() : null)
-                .group(request.isGroup())
-                .created(Instant.now())
-                .build();
+        return new Chat(null, request.getUsers(), request.getName(), request.isGroup(),
+                request.isGroup() ? ColorUtils.randomColor() : null, Instant.now());
     }
 }
