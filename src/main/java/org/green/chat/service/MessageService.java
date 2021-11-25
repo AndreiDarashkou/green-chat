@@ -2,7 +2,7 @@ package org.green.chat.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.green.chat.model.ChatRequest;
+import org.green.chat.model.MessageHistoryRequest;
 import org.green.chat.repository.MessageRepository;
 import org.green.chat.repository.entity.Message;
 import org.springframework.boot.context.event.ApplicationStartedEvent;
@@ -13,6 +13,8 @@ import reactor.core.publisher.Mono;
 import reactor.core.publisher.Sinks;
 
 import java.time.Instant;
+import java.util.Comparator;
+import java.util.List;
 
 @Slf4j
 @Service
@@ -48,11 +50,13 @@ public class MessageService {
                 .filterWhen(msg -> chatService.checkRecipient(msg, userId));
     }
 
-    public Flux<Message> getHistory(ChatRequest request) {
-        return messageRepository.findByFilter(request.getChatId(), request.getFrom(), request.getLimit());
+    public Mono<List<Message>> getHistory(MessageHistoryRequest request) {
+        return messageRepository.findByFilter(request.getChatId(), request.getFrom(), request.getLimit())
+                .sort(Comparator.comparing(Message::getCreated))
+                .collectList();
     }
 
-    public Mono<Void> sendHistory(ChatRequest request) {
+    public Mono<Void> sendHistory(MessageHistoryRequest request) {
         return messageRepository.findByFilter(request.getChatId(), Instant.now(), request.getLimit())
                 .doOnNext(msg -> System.out.println("send message: " + msg))
                 .doOnNext(msg -> messages.emitNext(msg, (m, signal) -> {

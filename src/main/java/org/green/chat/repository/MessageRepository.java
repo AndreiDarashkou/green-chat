@@ -13,7 +13,7 @@ public interface MessageRepository extends ReactiveCrudRepository<Message, Long>
 
     @Query("""
         select * from green_chat.messages
-        where chat_id = $1 and created < $2::timestamp order by created limit $3
+        where chat_id = $1 and created < $2::timestamp order by created desc limit $3
     """)
     Flux<Message> findByFilter(long chatId, Instant from, int limit);
 }

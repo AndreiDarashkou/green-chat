@@ -2,7 +2,7 @@ package org.green.chat.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.green.chat.model.ChatRequest;
+import org.green.chat.model.MessageHistoryRequest;
 import org.green.chat.model.UserRequest;
 import org.green.chat.repository.entity.Message;
 import org.green.chat.service.MessageService;
@@ -10,6 +10,8 @@ import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.stereotype.Controller;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
+import java.util.List;
 
 @Slf4j
 @Controller
@@ -29,7 +31,7 @@ public class MessageController {
     }
 
     @MessageMapping(MESSAGE_HISTORY)
-    public Flux<Message> messageHistory(ChatRequest request) {
+    public Mono<List<Message>> messageHistory(MessageHistoryRequest request) {
         log.info("called message.history: " + request);
         return messageService.getHistory(request);
     }
