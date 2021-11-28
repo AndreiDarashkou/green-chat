@@ -10,7 +10,6 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class CreateChatRequest {
-    private Long userId;
     private List<Long> users;
     private String name;
     private boolean group;

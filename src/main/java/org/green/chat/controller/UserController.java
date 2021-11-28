@@ -2,12 +2,14 @@ package org.green.chat.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.green.chat.model.AuthUser;
 import org.green.chat.model.LoginRequest;
 import org.green.chat.model.SearchRequest;
 import org.green.chat.model.UserRequest;
 import org.green.chat.repository.entity.UserEntity;
 import org.green.chat.service.UserService;
 import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -33,9 +35,9 @@ public class UserController {
     }
 
     @MessageMapping(USER_STREAM)
-    public Flux<List<UserEntity>> usersStream(UserRequest request) {
-        log.info("called user.stream: {}", request);
-        return userService.online(request);
+    public Flux<List<UserEntity>> usersStream(@AuthenticationPrincipal AuthUser user) {
+        log.info("called user.stream: {}", user);
+        return userService.online(user.getId());
     }
 
     @MessageMapping(USER_SHORT_INFO)

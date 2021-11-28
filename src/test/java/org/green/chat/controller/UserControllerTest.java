@@ -34,7 +34,7 @@ public class UserControllerTest {
     @Test
     void shouldCreateAndReturnUser() {
         StepVerifier.create(requester.route(USER_LOGIN)
-                        .data(new LoginRequest("TestUser"))
+                        .data(new LoginRequest("TestUser", "test"))
                         .retrieveMono(UserEntity.class))
                 .expectNextMatches(user -> user.getUsername().equals("TestUser") && user.getId() == 1)
                 .verifyComplete();

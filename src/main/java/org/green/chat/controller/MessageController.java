@@ -2,11 +2,12 @@ package org.green.chat.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.green.chat.model.AuthUser;
 import org.green.chat.model.MessageHistoryRequest;
-import org.green.chat.model.UserRequest;
 import org.green.chat.repository.entity.Message;
 import org.green.chat.service.MessageService;
 import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -25,9 +26,9 @@ public class MessageController {
     private final MessageService messageService;
 
     @MessageMapping(MESSAGE_STREAM)
-    public Flux<Message> messageStream(UserRequest request) {
+    public Flux<Message> messageStream(@AuthenticationPrincipal AuthUser user) {
         log.info("called message.stream");
-        return messageService.messageStream(request.getUserId());
+        return messageService.messageStream(user.getId());
     }
 
     @MessageMapping(MESSAGE_HISTORY)

@@ -30,4 +30,8 @@ public class Chat {
         return new Chat(null, request.getUsers(), request.getName(), request.isGroup(),
                 request.isGroup() ? ColorUtils.randomColor() : null, Instant.now());
     }
+
+    public static Chat privateOf(List<Long> users) {
+        return new Chat(null, users, null, false, ColorUtils.randomColor(), Instant.now());
+    }
 }

@@ -1,5 +1,6 @@
 package org.green.chat;
 
+import org.jetbrains.annotations.NotNull;
 import org.springframework.boot.test.util.TestPropertyValues;
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -23,7 +24,7 @@ public class DatabaseInitializer implements ApplicationContextInitializer<Config
     }
 
     @Override
-    public void initialize(ConfigurableApplicationContext applicationContext) {
+    public void initialize(@NotNull ConfigurableApplicationContext applicationContext) {
         TestPropertyValues values = TestPropertyValues.of(
                 "datasource.url=postgresql://" + postgres.getContainerIpAddress(),
                 "datasource.port=" + postgres.getMappedPort(5432),

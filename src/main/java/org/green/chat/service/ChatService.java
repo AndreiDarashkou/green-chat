@@ -30,14 +30,14 @@ public class ChatService {
     private final ChatRepository chatRepository;
     private final UserRepository userRepository;
 
-    public Mono<Chat> create(CreateChatRequest request) {
+    public Mono<Chat> create(long userId, CreateChatRequest request) {
         return chatRepository.save(Chat.of(request))
-                .flatMap(saved -> getName(saved, request.getUserId())
+                .flatMap(saved -> getName(saved, userId)
                         .doOnNext(saved::setName)
                         .flatMap(name -> Mono.just(saved)))
-                .doOnNext(saved -> saved.getUsers().forEach(userId -> {
-                    userChatCache.invalidate(userId);
-                    userChatIdsCache.invalidate(userId);
+                .doOnNext(saved -> saved.getUsers().forEach(id -> {
+                    userChatCache.invalidate(id);
+                    userChatIdsCache.invalidate(id);
                 }));
     }
 
@@ -54,8 +54,12 @@ public class ChatService {
                 .collectList();
     }
 
-    public Mono<Chat> get(long chatId) {
-        return chatRepository.findById(chatId);
+    public Mono<Chat> get(long userId, long chatId) {
+        return getAll(userId).filter(ch -> ch.getId() == chatId).next();
+//        return chatRepository.findById(chatId)
+//                .flatMap(chat -> getName(chat, userId)
+//                        .doOnNext(chat::setName)
+//                        .flatMap(name -> Mono.just(chat)));
     }
 
     public Mono<Boolean> checkRecipient(Message msg, long userId) {

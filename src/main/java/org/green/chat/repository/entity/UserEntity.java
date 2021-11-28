@@ -17,10 +17,11 @@ public class UserEntity {
     @Id
     private Long id;
     private String username;
+    private String password;
     private String color;
     private Instant created;
 
-    public static UserEntity of(String username) {
-        return new UserEntity(null, username, ColorUtils.randomColor(), Instant.now());
+    public static UserEntity of(String username, String password) {
+        return new UserEntity(null, username, password, ColorUtils.randomColor(), Instant.now());
     }
 }
