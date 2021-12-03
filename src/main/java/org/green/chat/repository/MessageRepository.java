@@ -5,6 +5,7 @@ import org.springframework.data.r2dbc.repository.Query;
 import org.springframework.data.repository.reactive.ReactiveCrudRepository;
 import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.time.Instant;
 
@@ -16,4 +17,6 @@ public interface MessageRepository extends ReactiveCrudRepository<Message, Long>
         where chat_id = $1 and created < $2::timestamp order by created desc limit $3
     """)
     Flux<Message> findByFilter(long chatId, Instant from, int limit);
+
+    Mono<Long> countByChatId(long chatId);
 }

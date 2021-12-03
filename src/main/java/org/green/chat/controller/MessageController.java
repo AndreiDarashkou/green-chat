@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.green.chat.model.AuthUser;
 import org.green.chat.model.MessageHistoryRequest;
+import org.green.chat.model.MessageHistoryResponse;
 import org.green.chat.repository.entity.Message;
 import org.green.chat.service.MessageService;
 import org.springframework.messaging.handler.annotation.MessageMapping;
@@ -11,8 +12,6 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-
-import java.util.List;
 
 @Slf4j
 @Controller
@@ -32,7 +31,7 @@ public class MessageController {
     }
 
     @MessageMapping(MESSAGE_HISTORY)
-    public Mono<List<Message>> messageHistory(MessageHistoryRequest request) {
+    public Mono<MessageHistoryResponse> messageHistory(MessageHistoryRequest request) {
         log.info("called message.history: " + request);
         return messageService.getHistory(request);
     }
