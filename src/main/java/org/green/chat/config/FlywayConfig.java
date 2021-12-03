@@ -3,12 +3,14 @@ package org.green.chat.config;
 import org.flywaydb.core.Flyway;
 import org.postgresql.ds.PGSimpleDataSource;
 import org.springframework.boot.autoconfigure.flyway.FlywayMigrationInitializer;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 
 import javax.sql.DataSource;
 
 @Component
+@EnableConfigurationProperties(value = FlywayProperties.class)
 public class FlywayConfig {
 
     @Bean
@@ -30,12 +32,12 @@ public class FlywayConfig {
     public DataSource dataSource(FlywayProperties properties) {
         PGSimpleDataSource dataSource = new PGSimpleDataSource();
         dataSource.setTcpKeepAlive(true);
-        dataSource.setUrl(properties.getUrl());
-        dataSource.setUser(properties.getUsername());
-        dataSource.setPassword(properties.getPassword());
-        dataSource.setDatabaseName(properties.getDatabase());
-        dataSource.setSsl(properties.isSsl());
-        dataSource.setSslMode(properties.getSslMode());
+        dataSource.setUrl(properties.url());
+        dataSource.setUser(properties.username());
+        dataSource.setPassword(properties.password());
+        dataSource.setDatabaseName(properties.database());
+        dataSource.setSsl(properties.ssl());
+        dataSource.setSslMode(properties.sslMode());
 
         return dataSource;
     }

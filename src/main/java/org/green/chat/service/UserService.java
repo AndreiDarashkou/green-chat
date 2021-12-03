@@ -2,10 +2,7 @@ package org.green.chat.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.green.chat.model.AuthUser;
-import org.green.chat.model.LoginRequest;
-import org.green.chat.model.SearchRequest;
-import org.green.chat.model.UserRequest;
+import org.green.chat.model.*;
 import org.green.chat.repository.UserRepository;
 import org.green.chat.repository.entity.UserEntity;
 import org.springframework.boot.context.event.ApplicationStartedEvent;
@@ -89,13 +86,16 @@ public class UserService implements ReactiveUserDetailsService {
                 .distinctUntilChanged();
     }
 
-    public Mono<UserEntity> getShortInfo(UserRequest request) {
-        return userRepository.findById(request.getUserId());
+    public Mono<UserDto> getShortInfo(UserRequest request) {
+        return userRepository.findById(request.getUserId())
+                .map(user -> new UserDto(user.getId(), user.getUsername(), user.getColor(), user.getCreated()));
     }
 
-    public Mono<List<UserEntity>> searchByUsername(SearchRequest request) {
+    public Mono<List<UserDto>> searchByUsername(SearchRequest request) {
         PageRequest pageRequest = PageRequest.ofSize(10).withSort(Sort.by(Sort.Direction.ASC, "username"));
-        return userRepository.findByUsernameContainingIgnoreCase(request.getSearch(), pageRequest).collectList();
+        return userRepository.findByUsernameContainingIgnoreCase(request.getSearch(), pageRequest)
+                .map(user -> new UserDto(user.getId(), user.getUsername(), user.getColor(), user.getCreated()))
+                .collectList();
     }
 
     private void notifyOnlineUsers() {

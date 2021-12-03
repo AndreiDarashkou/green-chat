@@ -2,10 +2,7 @@ package org.green.chat.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.green.chat.model.AuthUser;
-import org.green.chat.model.LoginRequest;
-import org.green.chat.model.SearchRequest;
-import org.green.chat.model.UserRequest;
+import org.green.chat.model.*;
 import org.green.chat.repository.entity.UserEntity;
 import org.green.chat.service.UserService;
 import org.springframework.messaging.handler.annotation.MessageMapping;
@@ -41,13 +38,13 @@ public class UserController {
     }
 
     @MessageMapping(USER_SHORT_INFO)
-    public Mono<UserEntity> shortInfo(UserRequest request) {
+    public Mono<UserDto> shortInfo(UserRequest request) {
         log.info("called user.short.info : {}", request);
         return userService.getShortInfo(request);
     }
 
     @MessageMapping(USER_SEARCH)
-    public Mono<List<UserEntity>> searchUsers(SearchRequest request) {
+    public Mono<List<UserDto>> searchUsers(SearchRequest request) {
         log.info("called user.search: {}", request);
         return userService.searchByUsername(request);
     }

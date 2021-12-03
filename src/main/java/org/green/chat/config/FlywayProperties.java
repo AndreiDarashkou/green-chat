@@ -1,17 +1,10 @@
 package org.green.chat.config;
 
-import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.stereotype.Component;
+import org.springframework.boot.context.properties.ConstructorBinding;
 
-@Data
-@Component
+@ConstructorBinding
 @ConfigurationProperties(prefix = "flyway")
-public class FlywayProperties {
-    private String url;
-    private String username;
-    private String password;
-    private String database;
-    private boolean ssl;
-    private String sslMode;
+public record FlywayProperties(String url, String username, String password, String database, boolean ssl,
+                               String sslMode) {
 }

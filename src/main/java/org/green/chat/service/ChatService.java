@@ -56,10 +56,6 @@ public class ChatService {
 
     public Mono<Chat> get(long userId, long chatId) {
         return getAll(userId).filter(ch -> ch.getId() == chatId).next();
-//        return chatRepository.findById(chatId)
-//                .flatMap(chat -> getName(chat, userId)
-//                        .doOnNext(chat::setName)
-//                        .flatMap(name -> Mono.just(chat)));
     }
 
     public Mono<Boolean> checkRecipient(Message msg, long userId) {
