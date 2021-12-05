@@ -34,7 +34,6 @@ public class MessageService {
 
     public void sendMessage(Mono<Message> message) {
         message.doOnNext(System.out::println)
-                .doOnNext(msg -> msg.setCreated(Instant.now()))
                 .flatMap(messageRepository::save)
                 .subscribe(msg -> messages.emitNext(msg, (m, s) -> {
                     log.warn("error emitting message: " + s);
