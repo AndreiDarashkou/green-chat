@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.green.chat.model.MessageHistoryRequest;
 import org.green.chat.model.MessageHistoryResponse;
+import org.green.chat.model.MessageReadRequest;
 import org.green.chat.repository.MessageRepository;
 import org.green.chat.repository.entity.Message;
 import org.springframework.boot.context.event.ApplicationStartedEvent;
@@ -35,10 +36,15 @@ public class MessageService {
     public void sendMessage(Mono<Message> message) {
         message.doOnNext(System.out::println)
                 .flatMap(messageRepository::save)
+                .flatMap(msg -> messageRepository.findById(msg.getId()))
                 .subscribe(msg -> messages.emitNext(msg, (m, s) -> {
                     log.warn("error emitting message: " + s);
                     return false;
                 }));
+    }
+
+    public Mono<Void> readMessage(MessageReadRequest request) {
+        return messageRepository.markRead(request.chatId(), request.fromId(), request.toId());
     }
 
     public Flux<Message> messageStream(long userId) {

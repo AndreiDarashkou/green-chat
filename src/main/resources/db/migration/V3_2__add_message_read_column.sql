@@ -1,0 +1,1 @@
+alter table green_chat.messages add column read boolean;

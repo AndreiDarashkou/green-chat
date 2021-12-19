@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.green.chat.model.AuthUser;
 import org.green.chat.model.MessageHistoryRequest;
 import org.green.chat.model.MessageHistoryResponse;
+import org.green.chat.model.MessageReadRequest;
 import org.green.chat.repository.entity.Message;
 import org.green.chat.service.MessageService;
 import org.springframework.messaging.handler.annotation.MessageMapping;
@@ -20,6 +21,7 @@ public class MessageController {
 
     public static final String MESSAGE_STREAM = "message.stream";
     public static final String MESSAGE_SEND = "message.send";
+    public static final String MESSAGE_READ = "message.read";
     public static final String MESSAGE_HISTORY = "message.history";
 
     private final MessageService messageService;
@@ -40,5 +42,11 @@ public class MessageController {
     public void sendMessage(Mono<Message> message) {
         log.info("called message.send");
         messageService.sendMessage(message);
+    }
+
+    @MessageMapping(MESSAGE_READ)
+    public Mono<Void> readMessage(MessageReadRequest request) {
+        log.info("called message.read");
+        return messageService.readMessage(request);
     }
 }

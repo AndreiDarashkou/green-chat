@@ -19,4 +19,10 @@ public interface MessageRepository extends ReactiveCrudRepository<Message, Long>
     Flux<Message> findByFilter(long chatId, Instant from, int limit);
 
     Mono<Long> countByChatId(long chatId);
+
+    @Query("""
+        update green_chat.messages set read = true
+        where chat_id = $1 and id between $2 and $3
+    """)
+    Mono<Void> markRead(int chatId, int fromId, int toId);
 }

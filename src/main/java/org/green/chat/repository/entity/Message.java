@@ -20,4 +20,5 @@ public class Message {
     private String message;
     private Instant created;
     private int number;
+    private boolean read;
 }
