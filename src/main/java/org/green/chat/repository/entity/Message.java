@@ -19,4 +19,5 @@ public class Message {
     private long userId;
     private String message;
     private Instant created;
+    private int number;
 }
