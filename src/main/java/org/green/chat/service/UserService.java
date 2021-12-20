@@ -98,6 +98,13 @@ public class UserService implements ReactiveUserDetailsService {
                 .collectList();
     }
 
+    public Mono<List<UserDto>> getFriends(long userId) {
+        return chatService.getAllRelativeIds(userId)
+                .flatMapMany(userRepository::findByIdIn)
+                .map(user -> new UserDto(user.getId(), user.getUsername(), user.getColor(), user.getCreated()))
+                .collectList();
+    }
+
     private void notifyOnlineUsers() {
         userRepository.findByIdIn(ONLINE).collectList()
                 .subscribe(users::tryEmitNext);

@@ -22,6 +22,7 @@ public class UserController {
     public static final String USER_STREAM = "user.stream";
     public static final String USER_SHORT_INFO = "user.short.info";
     public static final String USER_SEARCH = "user.search";
+    public static final String USER_FRIENDS = "user.friends";
 
     private final UserService userService;
 
@@ -47,5 +48,11 @@ public class UserController {
     public Mono<List<UserDto>> searchUsers(SearchRequest request) {
         log.info("called user.search: {}", request);
         return userService.searchByUsername(request);
+    }
+
+    @MessageMapping(USER_FRIENDS)
+    public Mono<List<UserDto>> getFriends(@AuthenticationPrincipal AuthUser user) {
+        log.info("called user.friends: {}", user);
+        return userService.getFriends(user.getId());
     }
 }
