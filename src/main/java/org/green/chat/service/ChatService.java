@@ -48,9 +48,7 @@ public class ChatService {
     }
 
     public Mono<List<Long>> getAllRelativeIds(Long userId) {
-        return chatRepository.findAllByUsersContainsAndGroupIsFalse(userId)
-                .map(Chat::getUsers)
-                .flatMap(Flux::fromIterable)
+        return chatRepository.findAllConnectedUserIds(userId)
                 .collectList();
     }
 
