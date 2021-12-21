@@ -18,6 +18,7 @@ import reactor.core.publisher.Signal;
 import reactor.core.publisher.SignalType;
 
 import java.util.List;
+import java.util.Objects;
 
 @Slf4j
 @Service
@@ -49,7 +50,7 @@ public class ChatService {
 
     public Mono<List<Long>> getAllRelativeIds(Long userId) {
         return chatRepository.findAllConnectedUserIds(userId)
-                .distinct()
+                .filter(id -> !Objects.equals(id, userId))
                 .collectList();
     }
 
