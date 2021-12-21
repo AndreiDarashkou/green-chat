@@ -23,12 +23,10 @@ public interface ChatRepository extends ReactiveCrudRepository<Chat, Long> {
     Flux<Long> findAllIdsByUsersContains(long userId);
 
     @Query("""
-        with connected as (
-        	select distinct unnest(users) as user_id
-        	from green_chat.chats
-        	where users @> array[$1]::bigint[]\s
-        	and is_group = false
-        ) select * from connected where user_id != $1;
+        select distinct unnest(users) as user_id
+        from green_chat.chats
+        where users @> array[$1]::bigint[]
+        and is_group = false
     """)
     Flux<Long> findAllConnectedUserIds(long userId);
 }

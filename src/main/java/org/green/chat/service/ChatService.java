@@ -49,6 +49,7 @@ public class ChatService {
 
     public Mono<List<Long>> getAllRelativeIds(Long userId) {
         return chatRepository.findAllConnectedUserIds(userId)
+                .distinct()
                 .collectList();
     }
 
