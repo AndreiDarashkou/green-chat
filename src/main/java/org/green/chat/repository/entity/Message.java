@@ -13,6 +13,9 @@ import java.time.Instant;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Message {
+
+    public static final Message EMPTY = new Message();
+
     @Id
     private Long id;
     private long chatId;

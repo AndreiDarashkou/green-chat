@@ -1,4 +1,4 @@
 package org.green.chat.model;
 
-public record MessageReadRequest(int chatId, int fromId, int toId) {
+public record MessageReadRequest(long chatId, int fromId, int toId) {
 }

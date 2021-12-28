@@ -2,6 +2,7 @@ package org.green.chat.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.green.chat.controller.dto.ChatDto;
 import org.green.chat.model.AuthUser;
 import org.green.chat.model.ChatRequest;
 import org.green.chat.model.CreateChatRequest;
@@ -31,13 +32,13 @@ public class ChatController {
     }
 
     @MessageMapping(CHAT_LIST)
-    public Flux<Chat> getChatList(@AuthenticationPrincipal AuthUser user) {
+    public Flux<ChatDto> getChatList(@AuthenticationPrincipal AuthUser user) {
         log.info("called chat.list");
         return chatService.getAll(user.getId());
     }
 
     @MessageMapping(CHAT_INFO)
-    public Mono<Chat> getChatInfo(@AuthenticationPrincipal AuthUser user, ChatRequest request) {
+    public Mono<ChatDto> getChatInfo(@AuthenticationPrincipal AuthUser user, ChatRequest request) {
         log.info("called chat.info");
         return chatService.get(user.getId(), request.getChatId());
     }
