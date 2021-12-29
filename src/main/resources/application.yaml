@@ -19,10 +19,6 @@ spring:
       schema: green_chat
       ssl: ${datasource.ssl}
       sslMode: ${datasource.sslMode}
-    pool:
-      initial-size: 1
-      max-size: 10
-      max-idle-time: 30m
 
 flyway:
   url: jdbc:${datasource.url}:${datasource.port}/green_chat
