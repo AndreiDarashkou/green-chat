@@ -17,7 +17,7 @@ declare
 begin
     select number into prev_number from green_chat.messages where chat_id = NEW.chat_id order by id desc limit 1;
     if prev_number is null then
-        prev_number = 1;
+        prev_number = 0;
     end if;
     NEW.number := prev_number + 1;
     return NEW;
