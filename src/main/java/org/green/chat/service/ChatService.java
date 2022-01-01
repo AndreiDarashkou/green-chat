@@ -27,14 +27,14 @@ import java.util.Objects;
 @RequiredArgsConstructor
 public class ChatService {
 
-    private final Cache<Long, List<ChatDto>> userChatCache = Caffeine.newBuilder().maximumSize(100).build();
+    private final Cache<Long, List<Chat>> userChatCache = Caffeine.newBuilder().maximumSize(100).build();
     private final Cache<Long, List<Long>> userChatIdsCache = Caffeine.newBuilder().maximumSize(100).build();
 
     private final ChatRepository chatRepository;
     private final UserRepository userRepository;
     private final MessageRepository messageRepository;
 
-    public Mono<Chat> create(long userId, CreateChatRequest request) {
+    public Mono<ChatDto> create(long userId, CreateChatRequest request) {
         return chatRepository.save(Chat.of(request))
                 .flatMap(saved -> getName(saved, userId)
                         .doOnNext(saved::setName)
@@ -42,19 +42,22 @@ public class ChatService {
                 .doOnNext(saved -> saved.getUsers().forEach(id -> {
                     userChatCache.invalidate(id);
                     userChatIdsCache.invalidate(id);
-                }));
+                }))
+                .map(chat -> new ChatDto(chat.getId(), chat.getUsers(), chat.getName(), chat.isGroup(),
+                        chat.getColor(), chat.getCreated(), Message.EMPTY));
     }
 
-    public Flux<ChatDto> getAll(long userId) {
+    public Flux<ChatDto> getAll(long userId, Long chatId) {
         return CacheFlux.lookup(this::lookupChats, userId)
-                .onCacheMissResume(() -> chatRepository.findAllByUsersContains(userId)
-                        .flatMap(chat -> messageRepository.findFirstByChatIdOrderByIdDesc(chat.getId())
-                                .defaultIfEmpty(Message.EMPTY)
-                                .map(message ->
-                                     new ChatDto(chat.getId(), chat.getUsers(), chat.getName(), chat.isGroup(),
-                                             chat.getColor(), chat.getCreated(), message)
-                                )))
-                        .andWriteWith((k, signals) -> Mono.fromRunnable(() -> cacheChats(k, signals)));
+                .onCacheMissResume(() -> chatRepository.findAllByUsersContains(userId))
+                .andWriteWith((k, signals) -> Mono.fromRunnable(() -> cacheChats(k, signals)))
+                .filter(chat -> chatId == null || chatId.equals(chat.getId()))
+                .flatMap(chat -> messageRepository.findFirstByChatIdOrderByIdDesc(chat.getId())
+                        .defaultIfEmpty(Message.EMPTY)
+                        .map(message ->
+                                new ChatDto(chat.getId(), chat.getUsers(), chat.getName(), chat.isGroup(),
+                                        chat.getColor(), chat.getCreated(), message)
+                        ));
     }
 
     public Mono<List<Long>> getAllRelativeIds(Long userId) {
@@ -64,7 +67,7 @@ public class ChatService {
     }
 
     public Mono<ChatDto> get(long userId, long chatId) {
-        return getAll(userId).filter(ch -> ch.id() == chatId).next();
+        return getAll(userId, chatId).next();
     }
 
     public Mono<Boolean> checkRecipient(Message msg, long userId) {
@@ -77,8 +80,8 @@ public class ChatService {
                 .andWriteWith((k, signals) -> Mono.fromRunnable(() -> cacheChatIds(k, signals)));
     }
 
-    private Mono<List<Signal<ChatDto>>> lookupChats(long userId) {
-        List<ChatDto> cached = userChatCache.asMap().get(userId);
+    private Mono<List<Signal<Chat>>> lookupChats(long userId) {
+        List<Chat> cached = userChatCache.asMap().get(userId);
 
         return cached == null ? Mono.empty() :
                 Mono.just(cached)
@@ -87,8 +90,8 @@ public class ChatService {
                         .collectList();
     }
 
-    private void cacheChats(Long userId, List<Signal<ChatDto>> signals) {
-        List<ChatDto> chats = signals.stream()
+    private void cacheChats(Long userId, List<Signal<Chat>> signals) {
+        List<Chat> chats = signals.stream()
                 .filter(sig -> sig.getType() == SignalType.ON_NEXT)
                 .map(Signal::get)
                 .toList();

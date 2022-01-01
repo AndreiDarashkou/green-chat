@@ -6,7 +6,6 @@ import org.green.chat.controller.dto.ChatDto;
 import org.green.chat.model.AuthUser;
 import org.green.chat.model.ChatRequest;
 import org.green.chat.model.CreateChatRequest;
-import org.green.chat.repository.entity.Chat;
 import org.green.chat.service.ChatService;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -26,7 +25,7 @@ public class ChatController {
     private final ChatService chatService;
 
     @MessageMapping(CHAT_CREATE)
-    public Mono<Chat> createChat(@AuthenticationPrincipal AuthUser user, CreateChatRequest chat) {
+    public Mono<ChatDto> createChat(@AuthenticationPrincipal AuthUser user, CreateChatRequest chat) {
         log.info("called chat.create");
         return chatService.create(user.getId(), chat);
     }
@@ -34,7 +33,7 @@ public class ChatController {
     @MessageMapping(CHAT_LIST)
     public Flux<ChatDto> getChatList(@AuthenticationPrincipal AuthUser user) {
         log.info("called chat.list");
-        return chatService.getAll(user.getId());
+        return chatService.getAll(user.getId(), null);
     }
 
     @MessageMapping(CHAT_INFO)
